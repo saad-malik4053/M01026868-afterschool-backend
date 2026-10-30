@@ -1,3 +1,8 @@
+/* =============================================================
+   seed.js — One-time script to populate the afterSchool database
+   Run with: node seed.js
+   ============================================================= */
+
 require('dotenv').config();
 const { MongoClient } = require('mongodb');
 
@@ -10,11 +15,13 @@ async function seed() {
 
     const db = client.db('afterSchool');
 
+    /* ---------------- Clear existing data ---------------- */
     await db.collection('lessons').deleteMany({});
     await db.collection('teachers').deleteMany({});
     await db.collection('orders').deleteMany({});
     console.log('🧹 Cleared lessons, teachers, orders');
 
+    /* ---------------- Insert lessons ---------------- */
     const lessons = [
       { topic: 'Mathematics',        location: 'Hendon',        price: 100, space: 5, icon: 'fas fa-calculator',  image: 'school.jpg' },
       { topic: 'Computer Science',   location: 'Colindale',     price: 120, space: 5, icon: 'fas fa-laptop-code', image: 'school.jpg' },
@@ -34,6 +41,7 @@ async function seed() {
     const lessonIds = Object.values(lessonResult.insertedIds);
     console.log(`📚 Inserted ${lessonIds.length} lessons`);
 
+    /* ---------------- Insert teachers ---------------- */
     const teachers = [
       {
         firstName: 'Mark',

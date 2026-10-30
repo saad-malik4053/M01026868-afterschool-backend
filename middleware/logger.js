@@ -1,3 +1,7 @@
+/* =============================================================
+   Logger middleware — outputs every request to the server console.
+   ============================================================= */
+
 function logger(req, res, next) {
   const timestamp = new Date().toISOString();
   console.log(`[${timestamp}] ${req.method} ${req.originalUrl}`);
