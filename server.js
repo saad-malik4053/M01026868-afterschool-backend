@@ -145,3 +145,33 @@ app.put('/lessons/:id', async (req, res) => {
     res.status(500).json({ error: 'Update failed' });
   }
 });
+
+
+app.post('/orders', async (req, res) => {
+  try {
+    const { name, phone, lessonIds, spaces, lessons } = req.body;
+
+    if (!name || !phone || !Array.isArray(lessonIds) || typeof spaces !== 'number') {
+      return res.status(400).json({ error: 'Missing required order fields' });
+    }
+
+    const order = {
+      name,
+      phone,
+      lessonIds,
+      spaces,
+      lessons: lessons || [],
+      createdAt: new Date()
+    };
+
+    const result = await db.collection('orders').insertOne(order);
+
+    res.status(201).json({
+      _id:     result.insertedId.toString(),
+      message: 'Order created successfully'
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to save order' });
+  }
+});
