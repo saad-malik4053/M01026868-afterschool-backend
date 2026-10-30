@@ -231,3 +231,10 @@ app.get('/enrolment/:lessonId', async (req, res) => {
     res.status(500).json({ error: 'Failed to calculate enrolment' });
   }
 });
+
+
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+});
