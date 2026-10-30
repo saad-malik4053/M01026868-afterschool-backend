@@ -41,3 +41,24 @@ function formatLesson(doc) {
     image:    doc.image
   };
 }
+
+
+app.get('/images/:filename', (req, res) => {
+  const filename = req.params.filename;
+
+  if (filename.includes('/') || filename.includes('\\') || filename.includes('..')) {
+    return res.status(400).json({ error: 'Invalid filename' });
+  }
+
+  const filepath = path.join(__dirname, 'public', 'images', filename);
+
+  res.sendFile(filepath, (err) => {
+    if (err) {
+      return res.status(404).json({
+        error:    'Image not found',
+        filename: filename,
+        message:  `The image "${filename}" does not exist on the server.`
+      });
+    }
+  });
+});
