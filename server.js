@@ -62,3 +62,12 @@ app.get('/images/:filename', (req, res) => {
     }
   });
 });
+
+
+app.get('/', (req, res) => {
+  res.json({
+    status:  'ok',
+    message: 'Afterschool Club API is running',
+    student: 'M01026868'
+  });
+});
