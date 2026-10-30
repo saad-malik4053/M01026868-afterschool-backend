@@ -112,3 +112,36 @@ app.get('/lessons/search', async (req, res) => {
     res.status(500).json({ error: 'Search failed' });
   }
 });
+
+
+app.put('/lessons/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid lesson id' });
+    }
+
+    const updates = { ...req.body };
+    delete updates._id;
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    const result = await db.collection('lessons').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updates }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Lesson not found' });
+    }
+
+    const updated = await db.collection('lessons').findOne({ _id: new ObjectId(id) });
+    res.json(formatLesson(updated));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Update failed' });
+  }
+});
