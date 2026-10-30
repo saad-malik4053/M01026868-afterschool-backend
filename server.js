@@ -175,3 +175,39 @@ app.post('/orders', async (req, res) => {
     res.status(500).json({ error: 'Failed to save order' });
   }
 });
+
+
+app.get('/teachers', async (req, res) => {
+  try {
+    const teachers = await db.collection('teachers').find({}).toArray();
+    res.json(teachers.map(t => ({
+      _id:       t._id.toString(),
+      firstName: t.firstName,
+      lastName:  t.lastName
+    })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch teachers' });
+  }
+});
+
+app.get('/teachers/:id/lessons', async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid teacher id' });
+    }
+
+    const teacher = await db.collection('teachers').findOne({ _id: new ObjectId(id) });
+    if (!teacher) return res.status(404).json({ error: 'Teacher not found' });
+
+    const lessons = await db.collection('lessons').find({
+      _id: { $in: teacher.lessonIds }
+    }).toArray();
+
+    res.json(lessons.map(formatLesson));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch teacher lessons' });
+  }
+});
