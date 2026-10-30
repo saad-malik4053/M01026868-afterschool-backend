@@ -82,3 +82,33 @@ app.get('/lessons', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch lessons' });
   }
 });
+
+
+app.get('/lessons/search', async (req, res) => {
+  try {
+    const term = (req.query.q || '').trim();
+    if (!term) return res.json([]);
+
+    const regex = new RegExp(term, 'i');
+
+    const results = await db.collection('lessons').aggregate([
+      { $addFields: {
+          priceStr: { $toString: '$price' },
+          spaceStr: { $toString: '$space' }
+      }},
+      { $match: {
+          $or: [
+            { topic:    regex },
+            { location: regex },
+            { priceStr: regex },
+            { spaceStr: regex }
+          ]
+      }}
+    ]).toArray();
+
+    res.json(results.map(formatLesson));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Search failed' });
+  }
+});
