@@ -211,3 +211,23 @@ app.get('/teachers/:id/lessons', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch teacher lessons' });
   }
 });
+
+
+app.get('/enrolment/:lessonId', async (req, res) => {
+  try {
+    const lessonId = req.params.lessonId;
+
+    const result = await db.collection('orders').aggregate([
+      { $unwind: '$lessons' },
+      { $match:  { 'lessons.lessonId': lessonId } },
+      { $group:  { _id: null, total: { $sum: '$lessons.quantity' } } }
+    ]).toArray();
+
+    const enrolment = result.length > 0 ? result[0].total : 0;
+
+    res.json({ lessonId, enrolment });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to calculate enrolment' });
+  }
+});
