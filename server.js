@@ -71,3 +71,14 @@ app.get('/', (req, res) => {
     student: 'M01026868'
   });
 });
+
+
+app.get('/lessons', async (req, res) => {
+  try {
+    const lessons = await db.collection('lessons').find({}).toArray();
+    res.json(lessons.map(formatLesson));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch lessons' });
+  }
+});
